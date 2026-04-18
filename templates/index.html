@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ma Liste de Tâches</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <nav class="bg-blue-600 text-white py-4 shadow">
+        <div class="max-w-5xl mx-auto px-6">
+            <h1 class="text-2xl font-bold">Ma Liste de Tâches</h1>
+        </div>
+    </nav>
+
+    <div class="max-w-5xl mx-auto px-6 py-10">
+
+        <h2 class="text-3xl font-semibold mb-1">Mes Tâches</h2>
+        <p class="text-gray-500 mb-8">Gérez vos tâches facilement</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, msg in messages %}
+                    <div class="mb-6 p-4 rounded-xl text-white {% if category == 'success' %}bg-green-500{% else %}bg-red-500{% endif %}">
+                        {{ msg }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" class="bg-white shadow rounded-3xl p-2 flex gap-3 mb-10">
+            <input type="text" name="title" 
+                   class="flex-1 px-6 py-4 text-lg border-0 focus:outline-none rounded-3xl"
+                   placeholder="Ajouter une nouvelle tâche..." required>
+            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold px-10 py-4 rounded-3xl">
+                Ajouter
+            </button>
+        </form>
+
+        <!-- À Faire -->
+        <div class="mb-8">
+            <button onclick="toggleSection(this)" class="w-full bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-semibold px-6 py-4 rounded-3xl flex justify-between items-center">
+                <span>À Faire ({{ todo_tasks|length }})</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="section-content mt-3 space-y-3">
+                {% for task in todo_tasks %}
+                <div class="bg-white shadow-sm hover:shadow rounded-3xl p-5 flex items-center gap-4">
+                    <input type="checkbox" onclick="location.href='/toggle/{{ task.id }}'" class="w-6 h-6 accent-yellow-500 cursor-pointer">
+                    <div class="flex-1">
+                        <p class="font-medium">{{ task.title }}</p>
+                    </div>
+                    <a href="/delete/{{ task.id }}" class="p-2 text-gray-400 hover:text-red-500">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- En Cours -->
+        <div class="mb-8">
+            <button onclick="toggleSection(this)" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-4 rounded-3xl flex justify-between items-center">
+                <span>En Cours ({{ in_progress_tasks|length }})</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="section-content mt-3 space-y-3">
+                {% for task in in_progress_tasks %}
+                <div class="bg-white shadow-sm hover:shadow rounded-3xl p-5 flex items-center gap-4">
+                    <input type="checkbox" checked onclick="location.href='/toggle/{{ task.id }}'" class="w-6 h-6 accent-blue-500 cursor-pointer">
+                    <div class="flex-1">
+                        <p class="font-medium">{{ task.title }}</p>
+                    </div>
+                    <a href="/delete/{{ task.id }}" class="p-2 text-gray-400 hover:text-red-500">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Terminées -->
+        <div>
+            <button onclick="toggleSection(this)" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-4 rounded-3xl flex justify-between items-center">
+                <span>Terminées ({{ done_tasks|length }})</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="section-content mt-3 space-y-3">
+                {% for task in done_tasks %}
+                <div class="bg-white shadow-sm hover:shadow rounded-3xl p-5 flex items-center gap-4 opacity-75">
+                    <input type="checkbox" checked onclick="location.href='/toggle/{{ task.id }}'" class="w-6 h-6 accent-green-500 cursor-pointer">
+                    <div class="flex-1">
+                        <p class="font-medium line-through">{{ task.title }}</p>
+                    </div>
+                    <a href="/delete/{{ task.id }}" class="p-2 text-gray-400 hover:text-red-500">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="mt-12 text-right">
+            <a href="/delete/all" onclick="return confirm('Supprimer toutes les tâches ?')" 
+               class="text-red-600 hover:underline font-medium">Tout Supprimer</a>
+        </div>
+    </div>
+
+    <script>
+        function toggleSection(btn) {
+            const content = btn.nextElementSibling;
+            content.style.display = (content.style.display === "none" || content.style.display === "") ? "block" : "none";
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".section-content").forEach(function(el) {
+                el.style.display = "block";
+            });
+        });
+    </script>
+</body>
+</html>
